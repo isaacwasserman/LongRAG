@@ -1,4 +1,8 @@
-torch
 datasets
 matplotlib
 numpy
+llama-index
+evaluate
+absl-py
+rouge-score
+python-dotenv
