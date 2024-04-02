@@ -2,7 +2,9 @@ datasets
 matplotlib
 numpy
 llama-index
+llama-index-llms-bedrock
 evaluate
 absl-py
 rouge-score
 python-dotenv
+boto3
