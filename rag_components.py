@@ -11,11 +11,12 @@ from llama_index.llms.openai import OpenAI
 from datasets import load_dataset
 import evaluate
 import tiktoken
+import numpy as np
 
 
 from tqdm.auto import tqdm
 
-qa_llm = OpenAI(temperature=0.2, model="gpt-4-0125-preview")
+gpt4 = OpenAI(temperature=0.2, model="gpt-4-0125-preview")
 
 
 def count_tokens(string):
@@ -40,6 +41,14 @@ def get_node_by_id(index, id_):
 
 def get_text_by_id(index, id_):
     return get_node_by_id(index, id_).text
+
+
+def similarity_score(query, index_id, node_id):
+    index = get_index_by_title(index_id)
+    node_embedding = np.array(index.vector_store.get(node_id))
+    query_embedding = np.array(Settings.embed_model._get_query_embedding(query))
+    score = np.dot(node_embedding, query_embedding)
+    return score
 
 
 def chunk_text(text, chunk_size=1024, chunk_overlap=200):
@@ -168,6 +177,8 @@ def llm_self_score(output_file, llm=Settings.llm):
         lines = f.readlines()
     outputs = [json.loads(line) for line in lines]
     for output in outputs:
+        if "correct" in output:
+            continue
         question = output["question"]
         ground_truth = output["ground_truth"]
         generated_answer = output["generated_answer"]
@@ -257,7 +268,7 @@ def question_is_answered(question, existing_output):
     return False
 
 
-def test_longdep_qa(inference_function, output_file=None, debug_lim=None, qa_llm=qa_llm):
+def test_longdep_qa(inference_function, output_file=None, debug_lim=None, qa_llm=gpt4):
     """
     Test an inference function on the longdep_qa dataset.
 
