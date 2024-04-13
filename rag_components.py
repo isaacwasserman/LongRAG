@@ -13,8 +13,9 @@ import evaluate
 import tiktoken
 import numpy as np
 
-
 from tqdm.auto import tqdm
+
+from aws_models import mixtral, mistral_large
 
 gpt4 = OpenAI(temperature=0.2, model="gpt-4-0125-preview")
 
