@@ -12,7 +12,9 @@ from datasets import load_dataset
 import evaluate
 import tiktoken
 import numpy as np
+import openai
 
+openai.api_key = ""
 
 from tqdm.auto import tqdm
 
