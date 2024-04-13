@@ -16,9 +16,7 @@ import numpy as np
 
 from tqdm.auto import tqdm
 
-from aws_models import mixtral, mistral_large
-
-gpt4 = OpenAI(temperature=0.2, model="gpt-4-0125-preview")
+from models import mixtral, mistral_large, gpt4
 
 
 def count_tokens(string):
@@ -311,7 +309,10 @@ def test_longdep_qa(inference_function, output_file=None, debug_lim=None, qa_llm
             if pbar.n >= debug_lim:
                 break
 
-def test_longdep_qaV2(inference_function, output_file=None, debug_lim=None, qa_llm=gpt4, chunksize=1024,top_k=2,chunk_overlap=200):
+
+def test_longdep_qaV2(
+    inference_function, output_file=None, debug_lim=None, qa_llm=gpt4, chunksize=1024, top_k=2, chunk_overlap=200
+):
     """
     Test an inference function on the longdep_qa dataset.
 
@@ -338,7 +339,15 @@ def test_longdep_qaV2(inference_function, output_file=None, debug_lim=None, qa_l
                 question = question_dict["Q"]
                 ground_truth = question_dict["A"]
                 if not question_is_answered(question, existing_output):
-                    inference_response = inference_function(question, context_title=title, context_text=context, qa_llm=qa_llm, chunksize=chunksize,top_k=top_k,chunk_overlap=chunk_overlap)
+                    inference_response = inference_function(
+                        question,
+                        context_title=title,
+                        context_text=context,
+                        qa_llm=qa_llm,
+                        chunksize=chunksize,
+                        top_k=top_k,
+                        chunk_overlap=chunk_overlap,
+                    )
                     if isinstance(inference_response, tuple):
                         generated_answer = inference_response[0]
                         additional_info = inference_response[1]

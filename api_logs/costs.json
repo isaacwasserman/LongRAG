@@ -1,0 +1,17 @@
+{
+    "gpt4": {
+        "n_input_tokens": 0,
+        "n_output_tokens": 0,
+        "cost": 0.0
+    },
+    "mixtral": {
+        "n_input_tokens": 0,
+        "n_output_tokens": 0,
+        "cost": 0.0
+    },
+    "mistral_large": {
+        "n_input_tokens": 0,
+        "n_output_tokens": 0,
+        "cost": 0.0
+    }
+}
