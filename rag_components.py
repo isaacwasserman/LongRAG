@@ -310,3 +310,46 @@ def test_longdep_qa(inference_function, output_file=None, debug_lim=None, qa_llm
                     break
             if pbar.n >= debug_lim:
                 break
+
+def test_longdep_qaV2(inference_function, output_file=None, debug_lim=None, qa_llm=gpt4, chunksize=1024,top_k=2,chunk_overlap=200):
+    """
+    Test an inference function on the longdep_qa dataset.
+
+    Args:
+        inference_function (function): The function to test
+        output_file (str): The path to the .jsonl file to log outputs to; if None, a new file will be created in the "output" directory with the current time as the name
+        debug_lim (int): The number of questions to test; if None, all questions will be tested
+
+    Returns:
+        None
+    """
+    n_questions = sum([len(eval(env["qa_pairs"])) for env in longdep_qa_ds])
+    if debug_lim is None:
+        debug_lim = n_questions
+    existing_output = read_output_file(output_file)
+    with tqdm(total=debug_lim, position=0, desc="Answering questions") as pbar:
+        for environment in longdep_qa_ds:
+            context = environment["input"]
+            title = environment["title"]
+            if chunksize != 1024:
+                title = f"{title}_chunksize{chunksize}"
+            qa_pairs = eval(environment["qa_pairs"])
+            for question_dict in qa_pairs:
+                question = question_dict["Q"]
+                ground_truth = question_dict["A"]
+                if not question_is_answered(question, existing_output):
+                    inference_response = inference_function(question, context_title=title, context_text=context, qa_llm=qa_llm, chunksize=chunksize,top_k=top_k,chunk_overlap=chunk_overlap)
+                    if isinstance(inference_response, tuple):
+                        generated_answer = inference_response[0]
+                        additional_info = inference_response[1]
+                    else:
+                        generated_answer = inference_response
+                        additional_info = {}
+                    output_file, existing_output = log_outputs(
+                        question, ground_truth, generated_answer, additional_info, output_file
+                    )
+                pbar.update(1)
+                if pbar.n >= debug_lim:
+                    break
+            if pbar.n >= debug_lim:
+                break
