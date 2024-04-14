@@ -6,7 +6,6 @@ import re
 from llama_index.core import Settings, VectorStoreIndex, StorageContext, load_index_from_storage
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.schema import TextNode
-from llama_index.llms.openai import OpenAI
 
 from datasets import load_dataset
 import evaluate
@@ -81,7 +80,7 @@ def get_index_by_title(title):
         storage_context = StorageContext.from_defaults(persist_dir=os.path.join("indices", title))
         index = load_index_from_storage(storage_context, index_id=title)
         return index
-    except FileNotFoundError:
+    except:
         return None
 
 
@@ -268,50 +267,8 @@ def question_is_answered(question, existing_output):
     return False
 
 
-def test_longdep_qa(inference_function, output_file=None, debug_lim=None, qa_llm=gpt4):
-    """
-    Test an inference function on the longdep_qa dataset.
-
-    Args:
-        inference_function (function): The function to test
-        output_file (str): The path to the .jsonl file to log outputs to; if None, a new file will be created in the "output" directory with the current time as the name
-        debug_lim (int): The number of questions to test; if None, all questions will be tested
-
-    Returns:
-        None
-    """
-    n_questions = sum([len(eval(env["qa_pairs"])) for env in longdep_qa_ds])
-    if debug_lim is None:
-        debug_lim = n_questions
-    existing_output = read_output_file(output_file)
-    with tqdm(total=debug_lim, position=0, desc="Answering questions") as pbar:
-        for environment in longdep_qa_ds:
-            context = environment["input"]
-            title = environment["title"]
-            qa_pairs = eval(environment["qa_pairs"])
-            for question_dict in qa_pairs:
-                question = question_dict["Q"]
-                ground_truth = question_dict["A"]
-                if not question_is_answered(question, existing_output):
-                    inference_response = inference_function(question, context_title=title, context_text=context, qa_llm=qa_llm)
-                    if isinstance(inference_response, tuple):
-                        generated_answer = inference_response[0]
-                        additional_info = inference_response[1]
-                    else:
-                        generated_answer = inference_response
-                        additional_info = {}
-                    output_file, existing_output = log_outputs(
-                        question, ground_truth, generated_answer, additional_info, output_file
-                    )
-                pbar.update(1)
-                if pbar.n >= debug_lim:
-                    break
-            if pbar.n >= debug_lim:
-                break
-
-
-def test_longdep_qaV2(
-    inference_function, output_file=None, debug_lim=None, qa_llm=gpt4, chunksize=1024, top_k=2, chunk_overlap=200
+def test_longdep_qa(
+    inference_function, output_file=None, debug_lim=None, qa_llm=gpt4, chunk_size=1024, top_k=2, chunk_overlap=200
 ):
     """
     Test an inference function on the longdep_qa dataset.
@@ -332,8 +289,7 @@ def test_longdep_qaV2(
         for environment in longdep_qa_ds:
             context = environment["input"]
             title = environment["title"]
-            if chunksize != 1024:
-                title = f"{title}_chunksize{chunksize}"
+            title = f"{title}_chunksize{chunk_size}"
             qa_pairs = eval(environment["qa_pairs"])
             for question_dict in qa_pairs:
                 question = question_dict["Q"]
@@ -344,7 +300,7 @@ def test_longdep_qaV2(
                         context_title=title,
                         context_text=context,
                         qa_llm=qa_llm,
-                        chunksize=chunksize,
+                        chunk_size=chunk_size,
                         top_k=top_k,
                         chunk_overlap=chunk_overlap,
                     )
@@ -362,3 +318,23 @@ def test_longdep_qaV2(
                     break
             if pbar.n >= debug_lim:
                 break
+
+
+def generate_qa_prompt(top_chunks_text_combined, question):
+    qa_prompt = f"""<s>[INST]Consider the following context with depth and thoughtfulness: {top_chunks_text_combined}\n\n\
+        Respond to the following question with insight and nuance. Answer concisely, often in one \
+        sentence or less and sometimes in the form of a list or structured text. If the question \
+        asks you to order events, refer to the events by their number (e.g. "1. third event, 2. second \
+        event, 3. first event" -> "3, 2, 1"). Answer multiple choice questions using the number which \
+        corresponds to the correct answer (e.g. "1. A, 2. B, 3. C" -> "2"). Do not include the \
+        question in your answer. \
+        \n\n\
+        Question: {question}\n\n [/INST]\
+        Answer: """
+    return qa_prompt
+
+
+def answer_reading_comprehension(question, retrieved_chunks_combined, qa_llm=mistral_large):
+    prompt = generate_qa_prompt(retrieved_chunks_combined, question)
+    response = qa_llm.complete(prompt).text
+    return response

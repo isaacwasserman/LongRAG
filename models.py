@@ -82,7 +82,7 @@ class LLM:
         costs[self.model_name]["n_output_tokens"] += n_output_tokens
         costs[self.model_name]["cost"] += cost
         with open(f"api_logs/costs.json", "w") as f:
-            json.dump(costs, f)
+            json.dump(costs, f, indent=4)
 
     def complete(self, prompt: str):
         completion = self.model.complete(prompt)

@@ -1,8 +1,8 @@
 {
     "gpt4": {
-        "n_input_tokens": 0,
-        "n_output_tokens": 0,
-        "cost": 0.0
+        "n_input_tokens": 99522,
+        "n_output_tokens": 743,
+        "cost": 1.0175100000000006
     },
     "mixtral": {
         "n_input_tokens": 0,
@@ -10,8 +10,8 @@
         "cost": 0.0
     },
     "mistral_large": {
-        "n_input_tokens": 0,
-        "n_output_tokens": 0,
-        "cost": 0.0
+        "n_input_tokens": 1186604,
+        "n_output_tokens": 50543,
+        "cost": 10.705863999999998
     }
 }
