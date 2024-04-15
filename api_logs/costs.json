@@ -1,17 +1,17 @@
 {
     "gpt4": {
-        "n_input_tokens": 149589,
-        "n_output_tokens": 1291,
-        "cost": 1.5346199999999994
+        "n_input_tokens": 198605,
+        "n_output_tokens": 1729,
+        "cost": 2.037920000000003
     },
     "mixtral": {
-        "n_input_tokens": 3497111,
-        "n_output_tokens": 1332596,
-        "cost": 2.5065171499999943
+        "n_input_tokens": 4309120,
+        "n_output_tokens": 1451979,
+        "cost": 2.955489299999998
     },
     "mistral_large": {
-        "n_input_tokens": 1982023,
-        "n_output_tokens": 86594,
-        "cost": 17.93443999999997
+        "n_input_tokens": 2372402,
+        "n_output_tokens": 100771,
+        "cost": 21.397719999999964
     }
 }
