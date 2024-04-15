@@ -175,7 +175,7 @@ def llm_self_score(output_file, llm=Settings.llm):
     with open(output_file, "r") as f:
         lines = f.readlines()
     outputs = [json.loads(line) for line in lines]
-    for output in outputs:
+    for output in tqdm(outputs):
         if "correct" in output:
             continue
         question = output["question"]
