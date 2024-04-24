@@ -114,6 +114,7 @@ def create_index_from_text_with_ids(text, index_title, chunk_size=1024, chunk_ov
     index = get_index_by_title(index_title)
 
     if index is None:
+        print(f"Creating index {index_title} from text.")
         ids = [f"text_chunk_{i}" for i in range(len(chunks))]
         index = create_index_from_chunks_with_ids(chunks, ids, index_title)
 
@@ -380,7 +381,7 @@ def answer_reading_comprehension(question, retrieved_chunks_combined, qa_llm=mis
 
 
 def test_longdep_qa_icl(
-    inference_function, output_file=None, debug_lim=None, qa_llm=gpt4, chunk_size=1024, top_k=2, chunk_overlap=200
+    inference_function, output_file=None, debug_lim=None, qa_llm=mistral_large, chunk_size=1024, top_k=2, chunk_overlap=200
 ):
     """
     Test an inference function on the longdep_qa dataset.
@@ -418,7 +419,7 @@ def test_longdep_qa_icl(
                         chunk_size=chunk_size,
                         top_k=top_k,
                         chunk_overlap=chunk_overlap,
-                        example_list=example_list
+                        examplelist=example_list
                     )
                     if isinstance(inference_response, tuple):
                         generated_answer = inference_response[0]
@@ -440,7 +441,7 @@ def test_longdep_qa_icl(
                     response = llm.complete(prompt).text.lower()
                     #create dictionary for example_list
                     temp_list.append({'question':question, 'context':context, 'ground':ground_truth, 'generated':generated_answer, 'score':response})
-                    if len(temp_list) == 5:
+                    if len(temp_list) == 5 and pbar.n <=105:
                         example_list = temp_list
                         temp_list = []
                 pbar.update(1)
