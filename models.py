@@ -76,13 +76,22 @@ class LLM:
                 "cost": cost,
             }
             f.write(json.dumps(log_message) + "\n")
-        with open(f"api_logs/costs.json", "r") as f:
-            costs = json.load(f)
-        costs[self.model_name]["n_input_tokens"] += n_input_tokens
-        costs[self.model_name]["n_output_tokens"] += n_output_tokens
-        costs[self.model_name]["cost"] += cost
-        with open(f"api_logs/costs.json", "w") as f:
-            json.dump(costs, f, indent=4)
+        cost_added = False
+        max_attempts = 10
+        n_attempts = 0
+        while not (cost_added or n_attempts >= max_attempts):
+            try:
+                with open(f"api_logs/costs.json", "r") as f:
+                    costs = json.load(f)
+                costs[self.model_name]["n_input_tokens"] += n_input_tokens
+                costs[self.model_name]["n_output_tokens"] += n_output_tokens
+                costs[self.model_name]["cost"] += cost
+                with open(f"api_logs/costs.json", "w") as f:
+                    json.dump(costs, f, indent=4)
+                cost_added = True
+            except Exception as e:
+                n_attempts += 1
+                print("Retrying.", e)
 
     def complete(self, prompt: str):
         completion = self.model.complete(prompt)
