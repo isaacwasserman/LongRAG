@@ -178,6 +178,7 @@ def llm_self_score(output_file, llm=Settings.llm):
     outputs = [json.loads(line) for line in lines]
     for output in tqdm(outputs):
         if "correct" in output:
+            # print("Skipping already scored output")
             continue
         question = output["question"]
         ground_truth = output["ground_truth"]
