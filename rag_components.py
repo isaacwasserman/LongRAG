@@ -370,7 +370,8 @@ def generate_qa_prompt_icl(top_chunks_text_combined, question, example_list):
         Score: {example_list[4]['score']}\n\n\n
         \n\n\
         Based on these examples and instructions, generate a response to the following question.
-        Question: {question}\n\n[/INST]\
+        Question: {question}\n\n
+        Context: {top_chunks_text_combined}\n\n[/INST]\
         Answer: """
     return qa_prompt
 
