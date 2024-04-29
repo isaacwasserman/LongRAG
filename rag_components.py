@@ -203,7 +203,6 @@ def llm_self_score(output_file, llm=Settings.llm):
     return accuracy
 
 
-
 def read_output_file(output_file):
     """
     Read a .jsonl file containing generated answers and ground truth answers.
@@ -336,6 +335,7 @@ def generate_qa_prompt(top_chunks_text_combined, question):
         Answer: """
     return qa_prompt
 
+
 def generate_qa_prompt_icl(top_chunks_text_combined, question, example_list):
     qa_prompt = f"""Your task is to consider the context with depth and thoughtfulness and respond to the following question with insight and nuance.\n
         Answer the question to achieve a high score. To score ranges from 0 to 1.\n
@@ -345,27 +345,22 @@ def generate_qa_prompt_icl(top_chunks_text_combined, question, example_list):
         question in your answer. \
         Below are some sample question answers.\n\n
         Question1: {example_list[0]['question']}\n\n
-        Context: {example_list[0]['context']}\n\n
         Ground Truth: {example_list[0]['ground']}\n
         Generated Answer: {example_list[0]['generated']}\n
         Score: {example_list[0]['score']}\n\n\n
         Question2: {example_list[1]['question']}\n\n
-        Context: {example_list[1]['context']}\n\n
         Ground Truth: {example_list[1]['ground']}\n
         Generated Answer: {example_list[1]['generated']}\n
         Score: {example_list[1]['score']}\n\n\n
         Question3: {example_list[2]['question']}\n\n
-        Context: {example_list[2]['context']}\n\n
         Ground Truth: {example_list[2]['ground']}\n
         Generated Answer: {example_list[2]['generated']}\n
         Score: {example_list[2]['score']}\n\n\n
         Question4: {example_list[3]['question']}\n\n
-        Context: {example_list[3]['context']}\n\n
         Ground Truth: {example_list[3]['ground']}\n
         Generated Answer: {example_list[3]['generated']}\n
         Score: {example_list[3]['score']}\n\n\n
         Question5: {example_list[4]['question']}\n\n
-        Context: {example_list[4]['context']}\n\n
         Ground Truth: {example_list[4]['ground']}\n
         Generated Answer: {example_list[4]['generated']}\n
         Score: {example_list[4]['score']}\n\n\n
@@ -374,6 +369,7 @@ def generate_qa_prompt_icl(top_chunks_text_combined, question, example_list):
         Question: {question}\n\n[/INST]\
         Answer: """
     return qa_prompt
+
 
 def answer_reading_comprehension(question, retrieved_chunks_combined, qa_llm=mistral_large):
     prompt = generate_qa_prompt(retrieved_chunks_combined, question)
@@ -395,7 +391,7 @@ def test_longdep_qa_icl(
     Returns:
         None
     """
-    llm=Settings.llm
+    llm = Settings.llm
     n_questions = sum([len(eval(env["qa_pairs"])) for env in longdep_qa_ds])
     if debug_lim is None:
         debug_lim = n_questions
@@ -420,7 +416,7 @@ def test_longdep_qa_icl(
                         chunk_size=chunk_size,
                         top_k=top_k,
                         chunk_overlap=chunk_overlap,
-                        examplelist=example_list
+                        examplelist=example_list,
                     )
                     if isinstance(inference_response, tuple):
                         generated_answer = inference_response[0]
@@ -431,7 +427,7 @@ def test_longdep_qa_icl(
                     output_file, existing_output = log_outputs(
                         question, ground_truth, generated_answer, additional_info, output_file
                     )
-                    
+
                     prompt = f"""\Question: {question}\n
                         \Answer: {ground_truth}\n
                         \Predicted Answer: {generated_answer}\n\n
@@ -440,11 +436,22 @@ def test_longdep_qa_icl(
                         \Score?: """
                     prompt = re.sub(r"\s+", " ", prompt)
                     response = llm.complete(prompt).text.lower()
-                    #create dictionary for example_list
-                    temp_list.append({'question':question, 'context':context, 'ground':ground_truth, 'generated':generated_answer, 'score':response})
-                    if len(temp_list) == 5 and pbar.n <=105:
+                    # create dictionary for example_list
+                    temp_list.append(
+                        {
+                            "question": question,
+                            "context": context,
+                            "ground": ground_truth,
+                            "generated": generated_answer,
+                            "score": response,
+                        }
+                    )
+                    if len(temp_list) == 5 and pbar.n <= 105:
                         example_list = temp_list
                         temp_list = []
+                    if pbar.n > 105:
+                        example_list = []
+                    print("Example list length", len(example_list))
                 pbar.update(1)
                 if pbar.n >= debug_lim:
                     break
