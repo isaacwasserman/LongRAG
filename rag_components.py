@@ -270,7 +270,14 @@ def question_is_answered(question, existing_output):
 
 
 def test_longdep_qa(
-    inference_function, output_file=None, debug_lim=None, qa_llm=gpt4, chunk_size=1024, top_k=2, chunk_overlap=200
+    inference_function,
+    output_file=None,
+    debug_lim=None,
+    debug_start=0,
+    qa_llm=gpt4,
+    chunk_size=1024,
+    top_k=2,
+    chunk_overlap=200,
 ):
     """
     Test an inference function on the longdep_qa dataset.
@@ -286,7 +293,9 @@ def test_longdep_qa(
     n_questions = sum([len(eval(env["qa_pairs"])) for env in longdep_qa_ds])
     if debug_lim is None:
         debug_lim = n_questions
+    start_index = debug_start
     existing_output = read_output_file(output_file)
+    current_index = 0
     with tqdm(total=debug_lim, position=0, desc="Answering questions") as pbar:
         for environment in longdep_qa_ds:
             context = environment["input"]
@@ -294,6 +303,9 @@ def test_longdep_qa(
             title = f"{title}_chunksize{chunk_size}"
             qa_pairs = eval(environment["qa_pairs"])
             for question_dict in qa_pairs:
+                if current_index < start_index:
+                    current_index += 1
+                    continue
                 question = question_dict["Q"]
                 ground_truth = question_dict["A"]
                 if not question_is_answered(question, existing_output):
