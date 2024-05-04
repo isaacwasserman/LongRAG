@@ -1,0 +1,38 @@
+{
+    "true": {
+        "computation": {
+            "matched": 7,
+            "total": 8
+        },
+        "timeline_reorder": {
+            "matched": 3,
+            "total": 4
+        },
+        "comprehension_and_reasoning": {
+            "matched": 12,
+            "total": 21
+        },
+        "multiple_information_retrieval": {
+            "matched": 2,
+            "total": 11
+        }
+    },
+    "false": {
+        "comprehension_and_reasoning": {
+            "matched": 2,
+            "total": 14
+        },
+        "multiple_information_retrieval": {
+            "matched": 10,
+            "total": 24
+        },
+        "timeline_reorder": {
+            "matched": 3,
+            "total": 9
+        },
+        "computation": {
+            "matched": 3,
+            "total": 9
+        }
+    }
+}
