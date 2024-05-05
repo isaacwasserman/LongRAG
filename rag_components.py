@@ -140,7 +140,9 @@ def index_union(indices):
     return combined_index
 
 
-longdep_qa_ds = load_dataset("bigainlco/LooGLE", "longdep_qa", split="test")
+longdep_qa_ds = load_dataset(
+    "bigainlco/LooGLE", "longdep_qa", split="test", revision="3249f4cf5acd70f3de94892a2ee709703839a92e"
+)
 rouge = evaluate.load("rouge")
 
 
