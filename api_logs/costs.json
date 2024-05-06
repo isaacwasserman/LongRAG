@@ -10,8 +10,8 @@
         "cost": 6.134388399999971
     },
     "mistral_large": {
-        "n_input_tokens": 6942099,
-        "n_output_tokens": 294573,
-        "cost": 62.60654399999983
+        "n_input_tokens": 7057584,
+        "n_output_tokens": 315909,
+        "cost": 64.04248799999979
     }
 }
